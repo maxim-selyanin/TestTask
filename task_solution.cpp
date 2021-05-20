@@ -41,38 +41,18 @@ void sync(VContainer &myVector, MContainer &myMap) {
      * что удобно использовать для удаления тех, что не помечены
      */
 
-    auto mapGarbageIterator = myMap.end();
-    KeyType maxKeyVal = maxKeyValue(myMap);
-
     //возвращаем false, если найдено совпадение
     auto predicate =
-            [&mapGarbageIterator
-             , &myMap
-             , maxKeyVal]
+            [&myMap]
              (const ValueType &currentVal) -> bool {
         //ищем текущее значение в мапе
         //O(N)
         auto currentValueIterator = findValue(myMap.begin()
-                , mapGarbageIterator, currentVal);
+                , myMap.end(), currentVal);
         //если нашли
-        if (currentValueIterator != mapGarbageIterator) {
-            //маркируем ноду, она улетает в конец мапы
-            //O(2*log N) = O(log N)
-            auto insertedIterator = markNode(myMap, currentValueIterator, maxKeyVal);
-            /* если это первая найденная нода,
-             * то выставляем mapGarbageIterator в неё;
-             * поддерживаем mapGarbageIterator указывающим
-             * на подходящий элемент с самым маленьким ключом
-             */
-            if (
-            //если это первая вставка в конец
-            mapGarbageIterator == myMap.end()
-            || //или если у вставленного элемента ключ меньше, чем у mapGarbageIterator'а
-            insertedIterator->first < mapGarbageIterator->first
-            )
-            {
-                mapGarbageIterator = insertedIterator;
-            }
+        if (currentValueIterator != myMap.end()) {
+            //маркируем ноду
+            markNodeValue(myMap, currentValueIterator);
             return false;
         } else {
             return true;
@@ -85,9 +65,21 @@ void sync(VContainer &myVector, MContainer &myMap) {
     //в векторе мусор оказывается в конце
     //O(N)
     myVector.erase(vecGarbageIterator, myVector.end());
-    //в мапе в начале
-    //at worst O(N)
-    myMap.erase(myMap.begin(), mapGarbageIterator);
+
+    //в мапе нужные ноды увеличены
+    auto mapTraversePredicate = []
+            (std::pair<const MContainer::key_type, MContainer::mapped_type> &node) -> bool
+    {
+        if (node.second > ::maxValue) {//нода помечена как нужная
+            //присваиваем ей изначальное значение
+            node.second -= valueMark(::minValue, ::maxValue);
+            return false;
+        } else {
+            return true;
+        }
+    };
+    //траверсим мапу
+    eraseIf(myMap, mapTraversePredicate);
 }
 
 void makeAll() {
