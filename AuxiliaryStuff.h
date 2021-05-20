@@ -4,6 +4,7 @@
 #include "GlobalDefinitions.h"
 #include "RandomGenerator.h"
 #include <iostream>
+#include <functional>
 
 //naive auxiliary function
 void printNaiveIntersection(VContainer vector, MContainer map);
@@ -35,19 +36,30 @@ void eraseRandomRange(Container &container);
 template<typename Iterator, typename Functor>
 Iterator moveToEndIf(Iterator begin, Iterator end, Functor predicate);
 
-//маркирует ноду; итератор должен быть разыменовываемым, то есть не end()
+//маркирует ключ ноды; итератор должен быть разыменовываемым, то есть не end()
 MContainer::iterator markNode(MContainer &container
                               , MContainer::iterator nodeIterator
                               , KeyType startingMaxKeyValue);
 
+//маркировка значение ноды
+void markNodeValue(MContainer &container, MContainer::iterator nodeIterator);
+ValueType valueMark(ValueType min, ValueType max);
+
 //значение, на которое увеличиваются ключи, чтобы их маркировать
-KeyType markValue(KeyType minKey, KeyType maxKey);
+KeyType keyMark(KeyType minKey, KeyType maxKey);
 
 //максимально возможное изначальное значение ключа в мапе
 KeyType maxKeyValue(const MContainer &map);
 
 //найти значение в мапе
 MContainer::iterator findValue(MContainer::iterator begin, MContainer::iterator end, ValueType value);
+
+//удаляет элементы мапы
+void eraseIf(MContainer &container, std::function<
+        bool (std::pair<
+                const MContainer::key_type
+                ,MContainer::mapped_type
+                >&)> predicate);
 
 
 
