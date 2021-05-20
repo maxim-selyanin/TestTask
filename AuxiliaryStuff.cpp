@@ -64,14 +64,14 @@ MContainer::iterator markNode(MContainer &container
                               , MContainer::iterator nodeIterator
                               , KeyType startingMaxKeyValue) {
     auto nodeHandler = container.extract(nodeIterator);
-    KeyType mark = markValue(0, startingMaxKeyValue);
+    KeyType mark = keyMark(0, startingMaxKeyValue);
     nodeHandler.key() += mark;
     auto insertResult = container.insert(std::move(nodeHandler));
     return insertResult.position;
 }
 
 //возвращает значение маркировки при заданных минимальных и максимальных значениях ключа
-KeyType markValue(KeyType minKey, KeyType maxKey) {
+KeyType keyMark(KeyType minKey, KeyType maxKey) {
     return maxKey - minKey + 1;
 }
 
@@ -96,4 +96,25 @@ void showVector(const VContainer &vector) {
         std::cout << v << ' ';
     }
     std::cout << '\n';
+}
+
+void markNodeValue(MContainer &container, MContainer::iterator nodeIterator) {
+    nodeIterator->second += valueMark(::minValue, ::maxValue);
+}
+
+ValueType valueMark(ValueType min, ValueType max) {
+    return max - min + 1;
+}
+
+void eraseIf(MContainer &container,
+             std::function<bool (std::pair<const MContainer::key_type, MContainer::mapped_type> &)> predicate) {
+    auto i = container.begin();
+    while (i != container.end()) {
+        auto tmp = i;
+        std::advance(i, 1);
+
+        if (predicate(*tmp)) {
+            container.erase(tmp);
+        }
+    }
 }
