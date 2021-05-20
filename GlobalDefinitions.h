@@ -16,7 +16,7 @@ constexpr std::size_t minSize =
         ;
 constexpr std::size_t maxSize =
         25
-        ;
+;
 
 //value constraints
 constexpr ValueType minValue = 1;
